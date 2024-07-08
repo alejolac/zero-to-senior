@@ -1,35 +1,102 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, { useState, useEffect } from 'react';
+import "./App.css"
+import Element from './components/elements.jsx';
+import Modal from './components/modal.jsx';
+
+// Librerias
+import { useAutoAnimate } from '@formkit/auto-animate/react';
+import { v4 as uuidv4 } from 'uuid';
+
+// React MUI
+import { TextField } from '@mui/material';
+import CheckBoxIcon from '@mui/icons-material/CheckBox';
+//
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [name, setName] = useState("")
+  const [modal, setModal] = useState({ open: false, data: {} });
+  const [parent, enableAnimations] = useAutoAnimate(/* optional config */)
+  const [parent2, enableAnimations2] = useAutoAnimate(/* optional config */)
+  const [data, setData] = useState([]);
+
+  const addData = () => {
+    const obj = {
+      id: uuidv4(),
+      name: name,
+      date: undefined,
+      noFormateDate: undefined,
+      description: "",
+      state: 1,
+      icon: "unassigned",
+      color: "",
+    }
+    setData(prevItems => [obj, ...prevItems]);
+    setName("");
+  }
+
+  const handleModal = (e, eNoFormat) => {
+    setModal(prevModal => ({ ...prevModal, open: false }));
+    const updatedData = data.map(elem => (
+      elem.id === e.id ? { ...elem, date: e.date, noFormateDate: eNoFormat } : elem
+    ));
+  
+    setData(updatedData);
+  }
 
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <main>
+      <div className='title'>
+        To - Do - App
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
+      <div className='list-head'>
+        <div ref={parent} className='list-new'>
+          <div className='list-new-title'>
+            PARA ASIGNAR
+          </div>
+          <div className='list-new-input'>
+            <div>
+              <TextField
+                id="standard-basic"
+                label="Nombre"
+                variant="standard"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
+            </div>
+            <CheckBoxIcon onClick={() => addData()} sx={{ transition: "0.2s ease-in-out", fontSize: 30, cursor: "Pointer", "&:hover": { color: "#90CAF9" } }} />
+          </div>
+          {
+            data.length > 0 && (
+              data.map((elem, index) => {
+                return (
+                  elem.date == undefined ? <div key={index} className='list-new-elem' onClick={() => setModal({ open: true, data: { ...elem } })}> <Element data={elem} /> </div> : ""
+                )
+              })
+            )
+          }
+        </div>
+        <div ref={parent2} className='list-new'>
+          <div className='list-new-title'>
+            PARA HACER
+          </div>
+          {
+            data.length > 0 && (
+              data.map((elem, index) => {
+                return (
+                  elem.date != undefined ? <div key={index} className='list-new-elem' onClick={() => setModal({ open: true, data: { ...elem } })}> <Element data={elem} /> </div> : ""
+                )
+              })
+            )
+          }
+        </div>
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+      {
+        modal.open && (
+          <Modal state={modal} handleState={handleModal} />
+        )
+      }
+    </main >
   )
 }
 
-export default App
+export default App;
