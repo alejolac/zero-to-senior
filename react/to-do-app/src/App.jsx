@@ -34,13 +34,13 @@ function App() {
     setName("");
   }
 
-  const handleModal = (e, eNoFormat) => {
-    setModal(prevModal => ({ ...prevModal, open: false }));
+  const handleModal = (e, type = 0) => {
     const updatedData = data.map(elem => (
-      elem.id === e.id ? { ...elem, date: e.date, noFormateDate: eNoFormat } : elem
+      elem.id === e.id ? e : elem
     ));
-  
+
     setData(updatedData);
+    if (type == 1) setModal(prevModal => ({ ...prevModal, open: false }));
   }
 
   return (
